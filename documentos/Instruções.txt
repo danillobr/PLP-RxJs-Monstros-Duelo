@@ -1,0 +1,6 @@
+1. Instale o Node.JS
+2. Durante a instalação, marque a opção de adicionar as referências do node ao Path da maquina
+3. Abra o projeto no Visual Studio Code
+4. Instale o RxJS no projeto com o comando: npm install rxjs
+5. Instale o readline-sync com o comando: npm install readline-sync
+6. Execute o projeto com o comando: node Principal
