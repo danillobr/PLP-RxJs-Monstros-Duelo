@@ -11,7 +11,6 @@ module.exports = class Jogo {
         this.roundAtual = 0;
         this.baralho = new Array();
         this.monstrosJogadosPorRound = 0;
-        this.opcaoEscolhida;
     }
 
     mostrarCampoMonstro() {
@@ -23,18 +22,14 @@ module.exports = class Jogo {
     }
 
     mostrarCartasBaralho() {
-        console.log("Baralho: ", this.baralho, null, 2);
+        console.log("Baralho: ", this.baralho);
     }
 
-    mosntrarTodasCartasEmCampo(){
-        
-    }
-
-    atualizarBaralho(idCarta) {
+    atualizarBaralho(nomeCarta) {
         const baralhoUpdate = new Subject();
         baralhoUpdate
             .pipe(
-                skipWhile(carta => carta.id != idCarta),
+                skipWhile(carta => carta.nome != nomeCarta),
                 take(1)
             )
             .subscribe(
@@ -69,10 +64,10 @@ module.exports = class Jogo {
     }
 
     jogarCartaMagica(nomeCarta) {
-        var idCarta;
         if (this.campoMagico.length < 5) {
             const pegandoDoBaralho = (carta$) => carta$.pipe(
                 filter(carta => (carta.tipo === "Magica" && carta.nome === nomeCarta)),
+                distinct(),
                 take(1),
             );
             const sourceCartas$ = from(this.baralho);
@@ -80,17 +75,13 @@ module.exports = class Jogo {
             cartaEscolhida$.subscribe(
                 carta => this.campoMagico.push(carta)
             );
-            cartaEscolhida$.subscribe(
-                carta => idCarta = carta.id
-            );
-            this.atualizarBaralho(idCarta);
+            this.atualizarBaralho(nomeCarta);
         } else {
-            console.log('Campo de Monstros já está cheio!');
+            console.log('Campo das Cartas Mágicas já está cheio!');
         }
     }
 
     jogarCartaMonstro(nomeCarta) {
-        var idCarta;
         if (this.campoMonstro.length < 5 && this.monstrosJogadosPorRound < 2) {
             const pegandoDoBaralho = (carta$) => carta$.pipe(
                 filter(carta => (carta.tipo === "Monstro" && carta.nome === nomeCarta)),
@@ -102,10 +93,7 @@ module.exports = class Jogo {
             cartaEscolhida$.subscribe(
                 carta => this.campoMonstro.push(carta)
             );
-            cartaEscolhida$.subscribe(
-                carta => idCarta = carta.id
-            );
-            this.atualizarBaralho(idCarta);
+            this.atualizarBaralho(nomeCarta);
             this.monstrosJogadosPorRound++;
         } else {
             console.log('Campo de Monstro já está cheio ou você alcançou o limete de jogadas por round!');
@@ -117,7 +105,7 @@ module.exports = class Jogo {
             const campoMonstroUpdate = new Subject();
             campoMonstroUpdate
                 .pipe(
-                    skipWhile(carta => carta.nome != nomeCarta),
+                    filter(carta => carta.nome === nomeCarta && carta.tipo === "Monstro"),
                     take(1)
                 )
                 .subscribe(
@@ -131,7 +119,6 @@ module.exports = class Jogo {
     }
 
     menu() {
-
         var entrada = readline.question("Round atual: " + this.roundAtual + "\n"
             + "Escolha uma opcao:\n"
             + "1 - Ver Baralho\n"
